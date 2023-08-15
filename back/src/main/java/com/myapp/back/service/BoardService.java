@@ -4,9 +4,10 @@ import com.myapp.back.dto.request.BoardRequestDto;
 import com.myapp.back.dto.response.BoardResponseDto;
 import com.myapp.back.model.Board;
 import com.myapp.back.repository.BoardRepository;
-import com.myapp.back.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,13 @@ public class BoardService {
 
     private final UserService userService;
 
+    /**
+     * 게시글 생성
+     * @Author : acrnm148@gmail.com
+     * @Param : BoardRequestDto.java
+     * @Param : token
+     * @Description : 조건이 있을 경우 false 반환, 추가 조건 없으므로 전부 true 반환
+     */
     @Transactional
     public boolean createPost(BoardRequestDto requestDto, String token) {
         log.info("createPost: {}", requestDto);
@@ -37,14 +45,18 @@ public class BoardService {
                         .createTime(now())
                         .build()
         );
-        // 조건이 있을 경우 false 반환, 추가 조건 없으므로 전부 true 반환
         return true;
     }
 
+    /**
+     * 게시글 목록 조회
+     * @Author : acrnm148@gmail.com
+     * @Param : Pageable
+     */
     @Transactional
-    public List<BoardResponseDto> getAllPosts() {
+    public List<BoardResponseDto> getAllPosts(Pageable pageable) {
         log.info("getAllPosts");
-        List<Board> list = boardRepository.findAll();
+        Page<Board> list = boardRepository.findAll(pageable);
         List<BoardResponseDto> responseList = new ArrayList<>();
         for (Board board : list) {
             BoardResponseDto response = new BoardResponseDto(board);
@@ -53,6 +65,11 @@ public class BoardService {
         return responseList;
     }
 
+    /**
+     * 특정 게시글 조회
+     * @Author : acrnm148@gmail.com
+     * @Param : boardId
+     */
     @Transactional
     public BoardResponseDto getPost(Long boardId) {
         log.info("getPost: {}", boardId);
@@ -70,6 +87,12 @@ public class BoardService {
                 .build();
     }
 
+    /**
+     * 게시글 수정
+     * @Author : acrnm148@gmail.com
+     * @Param : BoardRequestDto.java
+     * @Param : token
+     */
     @Transactional
     public boolean updatePost(BoardRequestDto requestDto, String token) {
         log.info("updatePost: {}", requestDto);
@@ -87,6 +110,12 @@ public class BoardService {
         return true;
     }
 
+    /**
+     * 특정 게시글 삭제
+     * @Author : acrnm148@gmail.com
+     * @Param : boardId
+     * @Param : token
+     */
     @Transactional
     public boolean deletePost(Long boardId, String token) {
         log.info("deletePost: {}", boardId);
@@ -101,9 +130,13 @@ public class BoardService {
         return true;
     }
 
+    /**
+     * 작성자 일치 여부 체크
+     * @Author : acrnm148@gmail.com
+     * @Param : token
+     * @Param : author
+     */
     private boolean validateAuthor(String token, String author) {
-        System.out.println("byTokenEmail:"+userService.getUserEmail(token));
-        System.out.println("author:"+author);
         if (!userService.getUserEmail(token).equals(author)) {
             return false;
         }

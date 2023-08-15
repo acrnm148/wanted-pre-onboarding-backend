@@ -6,6 +6,8 @@ import com.myapp.back.service.BoardService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,9 +49,10 @@ public class RestBoardController {
      * @Param : LoginRequestDto.java
      */
     @GetMapping
-    public ResponseEntity<List<BoardResponseDto>> getAllPosts() {
+    public ResponseEntity<List<BoardResponseDto>> getAllPosts(@RequestParam int page) {
         log.info("getAllPosts");
-        List<BoardResponseDto> list = boardService.getAllPosts();
+        Pageable pageable = PageRequest.of(page, 10);
+        List<BoardResponseDto> list = boardService.getAllPosts(pageable);
         if (list == null) {
             log.error("there are no posts!");
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);

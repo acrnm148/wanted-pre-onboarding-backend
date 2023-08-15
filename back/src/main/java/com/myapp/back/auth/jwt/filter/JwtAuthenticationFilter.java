@@ -5,6 +5,7 @@ import com.myapp.back.auth.jwt.service.JwtService;
 import com.myapp.back.model.User;
 import com.myapp.back.auth.PrincipalDetails;
 import com.myapp.back.auth.jwt.JwtToken;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,11 +19,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
-
-// 스프링 시큐리티에서 UsernamePasswordAuthenticationFilter 가 있다.
-// "/login" 요청해서 username, password를 전송하면 (post)
-// UsernamePasswordAuthenticationFilter 필터가 자동으로 동작
-
+/**
+ *  스프링 시큐리티에서 UsernamePasswordAuthenticationFilter 가 있다.
+ *  "/login" 요청해서 username, password를 전송하면 (post)
+ *  UsernamePasswordAuthenticationFilter 필터가 자동으로 동작
+ */
+@Slf4j
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private AuthenticationManager authenticationManager;
@@ -34,11 +36,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
 
-    // /login(post) 요청을 하면 로그인 시도를 위해서 실행되는 함수
+    // /login(post) 요청을 하면 로그인 시도를 위해서 실행
    @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-
-        System.out.println(" JwtAuthenticationFilter 실행중");
+        log.info("attemptAuthentication");
 
         //username, password 받기 request body에 존재 - json으로 파싱
        ObjectMapper om = new ObjectMapper();
@@ -48,8 +49,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
        } catch (IOException e) {
            e.printStackTrace();
        }
-
-       System.out.println("JwtAuthenticationFilter :" + user);
 
        // authenticate() 함수가 호출 되면 인증 프로바이더가 유저 디테일 서비스의 -> authenticationManager 를 사용할때 UserDetailSevice 를 사용가능
        // loadUserByUsername(토큰의 첫번째 파라메터) 를 호출하고
@@ -66,11 +65,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
        Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
        PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
-       /**
-        * 여기 왜 에러 뜨는지 알아보기 proxy 에러??!
-        */
-       //System.out.println("JwtAuthenticationFilter: " + principal.getUser());
-
        return authentication;
     }
 
@@ -79,8 +73,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult)
             throws IOException, ServletException {
-
-        System.out.println("successfulAuthentication 인증이 완료");
+        log.info("successfulAuthentication");
         PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
 
         //token 생성
@@ -95,7 +88,5 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         response.getWriter().write(result);
-
-        //response.addHeader(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX+ jwtToken);
     }
 }

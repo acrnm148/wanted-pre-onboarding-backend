@@ -68,7 +68,7 @@ public class SecurityConfig {
             http
                     .addFilter(config.corsFilter())
                     .addFilter(new JwtAuthenticationFilter(authenticationManager, jwtService)) //AuthenticationManger가 있어야 된다.(파라미터로)
-                    .addFilter(new JwtAuthorizationFilter(authenticationManager, userRepository, jwtService, redisTemplate)); //mod
+                    .addFilter(new JwtAuthorizationFilter(authenticationManager, userRepository, jwtService)); //mod
 
         }
     }

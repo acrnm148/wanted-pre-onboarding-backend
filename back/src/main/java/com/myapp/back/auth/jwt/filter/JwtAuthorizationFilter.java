@@ -6,6 +6,7 @@ import com.myapp.back.auth.jwt.service.JwtService;
 import com.myapp.back.model.User;
 import com.myapp.back.auth.PrincipalDetails;
 import com.myapp.back.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,46 +22,40 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
+@Slf4j
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private UserRepository userRepository;
     private JwtService jwtService;
-    private RedisTemplate<String, String> redisTemplate; //mod
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserRepository userRepository, JwtService jwtService, RedisTemplate<String, String> redisTemplate) {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserRepository userRepository, JwtService jwtService) {
         super(authenticationManager);
         this.userRepository = userRepository;
         this.jwtService = jwtService;
-        this.redisTemplate = redisTemplate;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-        System.out.println("인증이나 권한이 필요한 요청");
+        log.info("need to check authority!");
         ObjectMapper objectMapper = new ObjectMapper();
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
 
         String jwtHeader = request.getHeader(JwtProperties.HEADER_STRING);
+        // 토큰이 없는 경우
         if(jwtHeader ==null) {
-            /**
-             * JWT 토큰이 없는 사용자 필터링
-             */
             Map<String, String> jwtResponse = jwtService.requiredJwtTokenResponse();
             String result = objectMapper.writeValueAsString(jwtResponse);
             response.getWriter().write(result);
-
-            return; //여기서 마무리 지어준다.
+            return;
         }
 
-        System.out.println("jwtHeader:" + jwtHeader);
+        log.info("** jwtHeader:{}", jwtHeader);
         String token = request.getHeader(JwtProperties.HEADER_STRING);
         String email = jwtService.validAccessToken(token);
 
-        /**
-         * 정상적인 access 토큰 사용자
-         */
+        //정상적인 access 토큰 사용자
         if(email !=null) {
             User user = userRepository.findByEmail(email);
 
@@ -77,11 +72,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             chain.doFilter(request, response);
         }
-        /**
-         * access 토큰이 정상적이지 않거나 기간만료된 토큰일 경우
-         */
+        // access 토큰이 정상적이지 않거나 기간만료된 토큰일 경우
         else {
-
             Map<String, String> jwtResponse = jwtService.requiredRefreshTokenResponse();
             response.getWriter().write(objectMapper.writeValueAsString(jwtResponse));
             return;
