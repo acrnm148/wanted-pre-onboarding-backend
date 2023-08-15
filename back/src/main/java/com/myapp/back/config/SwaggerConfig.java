@@ -12,15 +12,15 @@ public class SwaggerConfig {
     @Bean
     public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
-                .group("88rising")
+                .group("wanted")
                 .pathsToMatch("/**")
                 .build();
     }
     @Bean
     public OpenAPI springShopOpenAPI() {
         return new OpenAPI()
-                .info(new Info().title("TIFY API")
-                        .description("TIFY API 명세서입니다.")
+                .info(new Info().title("Wanted Backend API")
+                        .description("Wanted Backend API 명세서입니다.")
                         .version("v0.0.1"));
     }
 }

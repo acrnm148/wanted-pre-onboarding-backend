@@ -23,9 +23,9 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CorConfig config;
-    private final UserRepository userRepository;
     private final JwtService jwtService;
     private final RedisTemplate<String, String> redisTemplate; //mod
+    private final UserRepository userRepository;
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
