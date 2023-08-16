@@ -152,6 +152,8 @@ https://github.com/acrnm148/wanted-pre-onboarding-backend/assets/67724306/4d2494
 
 ## API 명세
 
+![image](https://github.com/acrnm148/wanted-pre-onboarding-backend/assets/67724306/32653b88-ae52-410f-b7f4-453fe299e323)
+
 
 
 [//]: # (### docker-compose 실행 방법)
