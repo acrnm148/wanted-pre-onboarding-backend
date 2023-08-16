@@ -8,10 +8,10 @@ wanted-pre-onboarding-backend
 ## 애플리케이션 실행 방법
 
 1. 사용한 툴
-   1. Java 17
-   2. SpringBoot
-   3. MySQL 8.0
-   4. JPA
+   - Java 17
+   - SpringBoot
+   - MySQL 8.0
+   - JPA
 2. BackApplication 실행 후 엔드포인트 api 호출
 
 엔드포인트 호출 방법은 아래와 같습니다.
